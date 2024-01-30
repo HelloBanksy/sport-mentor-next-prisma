@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String?  @unique
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @updatedAt @map(name: "updated_at")
+  trainer   Trainer?
+  trainee   Trainee?
+
+  @@map(name: "users")
+}
+
+model Trainer {
+  id              String            @id @default(cuid())
+  user            User              @relation(fields: [userId], references: [id])
+  userId          String            @unique
+  traineeContract TraineeContract[]
+}
+
+model Trainee {
+  id              String            @id @default(cuid())
+  user            User              @relation(fields: [userId], references: [id])
+  userId          String            @unique
+  traineeContract TraineeContract[]
+}
+
+model TraineeContract {
+  id            String         @id @default(cuid())
+  trainee       Trainee       @relation(fields: [traineeId], references: [id])
+  traineeId     String
+  trainer       Trainer       @relation(fields: [trainerId], references: [id])
+  trainerId     String
+  nutritionPlan NutritionPlan?
+  trainintPlan  TrainingPlan?
+
+  validFrom DateTime
+  vatlidTo  DateTime
+}
+
+model NutritionPlan {
+  id               String             @id @default(cuid())
+  traineeContract  TraineeContract    @relation(fields: [contractId], references: [id])
+  contractId       String             @unique
+  nutritionPlanDay NutritionPlanDay[]
+
+  validFrom DateTime
+  vatlidTo  DateTime
+}
+
+model NutritionPlanDay {
+  id              String         @id @default(cuid())
+  nutritionPlan   NutritionPlan? @relation(fields: [nutritionPlanId], references: [id])
+  nutritionPlanId String
+  date            DateTime
+  dayPlan         Json
+}
+
+model TrainingPlan {
+  id              String            @id @default(cuid())
+  traineeContract TraineeContract   @relation(fields: [contractId], references: [id])
+  contractId      String            @unique
+  trainingPlanDay TrainingPlanDay[]
+
+  validFrom DateTime
+  vatlidTo  DateTime
+}
+
+model TrainingPlanDay {
+  id             String        @id @default(cuid())
+  trainingPlan   TrainingPlan? @relation(fields: [trainingPlanId], references: [id])
+  trainingPlanId String
+  date           DateTime
+  dayPlan        Json
+}

@@ -1,9 +1,8 @@
 import { AppProps } from "next/app";
 
+import { trpc } from '../utils/trpc';
 const App = ({ Component, pageProps }: AppProps) => {
-  return (
-    <Component {...pageProps} />
-  );
+  return <Component {...pageProps} />;
 };
 
-export default App;
+export default trpc.withTRPC(App);
